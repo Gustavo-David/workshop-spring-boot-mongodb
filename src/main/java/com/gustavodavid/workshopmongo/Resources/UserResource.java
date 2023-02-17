@@ -25,28 +25,37 @@ public class UserResource {
         private UserService userService;
 
         @RequestMapping(method = RequestMethod.GET)
-        public ResponseEntity<List<UserDTO >> findAll() {
+        public ResponseEntity<List<UserDTO>> findAll() {
 
                 List<User> list = userService.findAll();
                 List<UserDTO> listDto = list.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
                 return ResponseEntity.ok().body(listDto);
         }
 
-        @RequestMapping(value = "/{id}" ,method = RequestMethod.GET)
-        public ResponseEntity<UserDTO > findById(@PathVariable String id ) {
+        @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+        public ResponseEntity<UserDTO> findById(@PathVariable String id) {
                 User obj = userService.findById(id);
                 return ResponseEntity.ok().body(new UserDTO(obj));
         }
 
-        @RequestMapping(value = "/{id}" ,method = RequestMethod.DELETE)
-        public ResponseEntity<UserDTO > delete(@PathVariable String id ) {
+        @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+        public ResponseEntity<UserDTO> delete(@PathVariable String id) {
                 userService.delete(id);
                 return ResponseEntity.noContent().build();
         }
-        
+
+        @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
+        public ResponseEntity<Void> update(@RequestBody UserDTO objDto, @PathVariable String id) {
+
+                User obj = userService.fromDto(objDto);
+                obj.setId(id);
+                obj = userService.update(obj);
+                return ResponseEntity.noContent().build();
+        }
+
         @RequestMapping(method = RequestMethod.POST)
         public ResponseEntity<Void> insert(@RequestBody UserDTO objDto) {
-                User obj = userService.fromDtto(objDto);
+                User obj = userService.fromDto(objDto);
                 obj = userService.insert(obj);
                 URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
                 return ResponseEntity.created(uri).build();
